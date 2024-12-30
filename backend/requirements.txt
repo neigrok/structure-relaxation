@@ -1,0 +1,14 @@
+# fastapi
+fastapi==0.115.6
+uvicorn==0.34.0
+pydantic==2.10.4
+pydantic-settings==2.7.0
+
+# calculations
+ase==3.24.0
+mp-api==0.45.0
+pymatgen==2024.11.13
+torch==2.5.1
+
+## mace
+git+https://github.com/ACEsuit/mace.git@v0.3.9
