@@ -8,30 +8,45 @@ from pydantic import BaseModel, Field
 from services.relaxation.job import Job
 
 
+class StructureResponse(BaseModel):
+    format: str = Field(..., description="Format of the structure")
+    structure: str = Field(..., description="Structure in the given format")
+
+
 class StructuresResponse(BaseModel):
     chemical_formula: str = Field(..., description="Chemical formula")
-    bulk: str = Field(..., description="Bulk structure in XYZ format")
-    slab: str = Field(..., description="Slab structure in XYZ format")
+    bulk: StructureResponse = Field(..., description="Bulk structure in CIF format")
+    slab: StructureResponse = Field(..., description="Slab structure in CIF format")
 
     @classmethod
     def from_job(cls, job: Job) -> Self:
+        structure_format = "cif"
+
         atoms = Atoms.fromdict(job["atoms"])
         atoms_slab = Atoms.fromdict(job["atoms_slab"])
 
         structures = {
-            'bulk': io.StringIO(),
-            'slab': io.StringIO()
+            'bulk': io.BytesIO(),
+            'slab': io.BytesIO()
         }
 
-        write(structures['bulk'], atoms, format='xyz')
-        write(structures['slab'], atoms_slab, format='xyz')
+        write(structures['bulk'], atoms, format=structure_format)
+        write(structures['slab'], atoms_slab, format=structure_format)
+
+        bulk_str = structures['bulk'].getvalue().decode('utf-8')
+        slab_str = structures['slab'].getvalue().decode('utf-8')
 
         return cls(
             chemical_formula=job["chemical_formula"],
-            bulk=structures['bulk'].getvalue(),
-            slab=structures['slab'].getvalue()
+            bulk=StructureResponse(
+                format=structure_format,
+                structure=bulk_str,
+            ),
+            slab=StructureResponse(
+                format=structure_format,
+                structure=slab_str,
+            )
         )
-
 
 class JobOptimizationResponse(BaseModel):
     progress: float = Field(0.0, description="Progress in percents")
