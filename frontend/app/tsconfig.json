@@ -1,0 +1,16 @@
+{
+  "extends": "@constructor/configs/tsconfig.global.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "types": [
+      "vite/client",
+      "@constructor/federation/types",
+    ],
+    "paths": {
+      "@/*": ["src/*"],
+      "@app/*": ["./*"]
+    }
+  },
+  "include": ["node_modules/@constructor/ui/@types/index.d.ts", "**/*.ts", "**/*.vue"],
+  "exclude": ["node_modules"]
+}

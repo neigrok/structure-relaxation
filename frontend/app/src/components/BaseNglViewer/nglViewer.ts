@@ -1,0 +1,125 @@
+import { useLoadState } from '@constructor/ui';
+import type { Component, Stage, StageParameters } from 'ngl';
+import type { InjectionKey } from 'vue';
+import { inject, provide, ref, shallowRef } from 'vue';
+
+const key: InjectionKey<ReturnType<typeof getNglViewer>> = Symbol('nglViewer');
+
+export function provideNglViewer() {
+  const api = getNglViewer();
+
+  provide(key, api);
+
+  return api;
+}
+
+export function injectNglViewer() {
+  return inject(key)!;
+}
+
+function getNglViewer() {
+  const ngl = shallowRef<{ Stage: typeof Stage; Component: typeof Component }>();
+  const stageInstance = shallowRef<Stage>();
+  const componentInstance = shallowRef<Component>();
+  const content = ref<string>();
+  const extension = ref<string>();
+  const loadStateService = useLoadState(); // loaded when everything is rendered
+  const loadLibStateService = useLoadState();
+  let libPromise: Promise<void>;
+
+  return {
+    ngl,
+    content,
+    extension,
+    loadState: loadStateService.loadState,
+    setStage,
+    stageInstance,
+    componentInstance,
+    initLibrary,
+    setStructure,
+    getStructureName,
+  };
+
+  async function initLibrary() {
+    const state = loadLibStateService.loadState.value;
+
+    if (state === 'error' || state === 'blank') {
+      libPromise = loadLibStateService.loadPromise(loadLibrary());
+    }
+
+    return libPromise;
+  }
+
+  async function loadLibrary() {
+    loadStateService.setLoading();
+    ngl.value = await import('ngl');
+  }
+
+  function setStage(element: HTMLDivElement) {
+    if (stageInstance.value) {
+      stageInstance.value.dispose();
+      stageInstance.value = undefined;
+    }
+
+    // to turn on debug use ngl.setDebug(true)
+    const options: Partial<StageParameters> = {
+      clipDist: 0,
+    };
+
+    stageInstance.value = new ngl.value!.Stage(element, options);
+    initComponent();
+  }
+
+  function setStructure(newContent: string, newExtension: string) {
+    content.value = newContent;
+    extension.value = newExtension;
+    initComponent();
+  }
+
+  function getStructureName() {
+    return componentInstance.value?.parameters.name;
+  }
+
+  async function initComponent() {
+    if (!isComponentDataReady()) {
+      loadStateService.setLoading();
+      cleanComponent();
+      return;
+    }
+
+    try {
+      // do not call set loading to prevent flushing of loading screen
+      await setComponent();
+      loadStateService.setLoaded();
+    } catch (error) {
+      loadStateService.setError();
+      throw error;
+    }
+  }
+
+  async function setComponent() {
+    cleanComponent();
+    const blob = new Blob([content.value!], { type: 'text/plain' });
+    const result = await stageInstance.value!.loadFile(blob, {
+      ext: extension.value!,
+      defaultRepresentation: true,
+    });
+
+    if (!result) {
+      throw new Error(`Failed to show file ${extension.value}`);
+    }
+
+    componentInstance.value = result;
+  }
+
+  function cleanComponent() {
+    if (componentInstance.value) {
+      stageInstance.value?.removeComponent(componentInstance.value);
+      componentInstance.value = undefined;
+    }
+  }
+
+  function isComponentDataReady() {
+    return !!content.value && !!extension.value && !!stageInstance.value;
+  }
+}
