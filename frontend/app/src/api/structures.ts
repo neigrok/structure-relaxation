@@ -1,25 +1,29 @@
+import axios from 'axios';
 import type {
   ApiStructureGetResponse,
   ApiStructuresPostBody,
   ApiStructuresPostResponse,
 } from '@/api/endpoints/structures';
-import { apiStructureGet, apiStructuresPost } from '@/api/endpoints/structures';
-import { requester } from '@/services/requester';
+
+const baseURL = import.meta.env.CONSTRUCTOR_APP_URL;
 
 export function useStructureRequest() {
-  return requester
-    .entity(apiStructureGet)
-    .response<ApiStructureGetResponse>()
-    .setup((id: string) => ({
-      params: { id },
-    }));
+  return {
+    async request(id: string): Promise<ApiStructureGetResponse> {
+      const response = await axios.get<ApiStructureGetResponse>(`${baseURL}/api/structures/${id}`);
+      return response.data;
+    },
+  };
 }
 
 export function useCreateStructureRequest() {
-  return requester
-    .entity(apiStructuresPost)
-    .response<ApiStructuresPostResponse>()
-    .setup((body: ApiStructuresPostBody) => ({
-      body,
-    }));
+  return {
+    async request(body: ApiStructuresPostBody): Promise<ApiStructuresPostResponse> {
+      const response = await axios.post<ApiStructuresPostResponse>(
+        `${baseURL}/api/structures`,
+        body,
+      );
+      return response.data;
+    },
+  };
 }

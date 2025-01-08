@@ -1,4 +1,3 @@
-import { useLoadState } from '@constructor/ui';
 import type { Component, Stage, StageParameters } from 'ngl';
 import type { InjectionKey } from 'vue';
 import { inject, provide, ref, shallowRef } from 'vue';
@@ -23,15 +22,12 @@ function getNglViewer() {
   const componentInstance = shallowRef<Component>();
   const content = ref<string>();
   const extension = ref<string>();
-  const loadStateService = useLoadState(); // loaded when everything is rendered
-  const loadLibStateService = useLoadState();
   let libPromise: Promise<void>;
 
   return {
     ngl,
     content,
     extension,
-    loadState: loadStateService.loadState,
     setStage,
     stageInstance,
     componentInstance,
@@ -41,17 +37,11 @@ function getNglViewer() {
   };
 
   async function initLibrary() {
-    const state = loadLibStateService.loadState.value;
-
-    if (state === 'error' || state === 'blank') {
-      libPromise = loadLibStateService.loadPromise(loadLibrary());
-    }
-
+    libPromise = loadLibrary();
     return libPromise;
   }
 
   async function loadLibrary() {
-    loadStateService.setLoading();
     ngl.value = await import('ngl');
   }
 
@@ -82,7 +72,6 @@ function getNglViewer() {
 
   async function initComponent() {
     if (!isComponentDataReady()) {
-      loadStateService.setLoading();
       cleanComponent();
       return;
     }
@@ -90,9 +79,7 @@ function getNglViewer() {
     try {
       // do not call set loading to prevent flushing of loading screen
       await setComponent();
-      loadStateService.setLoaded();
     } catch (error) {
-      loadStateService.setError();
       throw error;
     }
   }

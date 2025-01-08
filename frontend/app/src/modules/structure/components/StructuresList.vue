@@ -1,14 +1,11 @@
 <script lang="ts" setup>
-  import { useBrowserStorageItem, GoButton } from '@constructor/ui';
-  import { computed } from 'vue';
+  import { ref } from 'vue';
+  import { useRouter } from 'vue-router';
   import type { Structure } from '@/api/types/structure';
   import StructuresListItem from '@/modules/structure/components/StructuresListItem.vue';
-  import { router } from '@/router/router';
 
-  const { get } = useBrowserStorageItem<Structure[]>('structures', {
-    storageArea: 'localStorage',
-  });
-  const structures = computed(() => get() || []);
+  const router = useRouter();
+  const structures = ref<Structure[]>(JSON.parse(localStorage.getItem('structures') || '[]'));
 
   function navigateToHome() {
     router.push({ name: 'structures' });
@@ -17,7 +14,12 @@
 
 <template>
   <div class="structures-list">
-    <GoButton class="create-button" @click="navigateToHome">Add new structure</GoButton>
+    <button
+      class="w-full mb-4 bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded"
+      @click="navigateToHome"
+    >
+      Add new structure
+    </button>
     <template v-if="structures.length">
       <StructuresListItem
         v-for="structure of structures"
@@ -34,11 +36,6 @@
     overflow: auto;
     padding-block: 8px;
     padding-inline: 12px;
-  }
-
-  .create-button {
-    margin-block: 8px;
-    width: 100%;
   }
 
   .empty {

@@ -8,35 +8,13 @@
 
 <template>
   <RouterLink
-    class="structures-item"
+    class="grid gap-y-0 gap-x-4 grid-cols-[min-content_auto_min-content] grid-rows-[min-content_min-content] p-1 m-1 border border-gray-300 hover:bg-gray-100"
     :to="{ name: 'structure', params: { structureId: structure.id } }"
   >
     <div></div>
-    <div class="font-weight-semi-bold">{{ structure.structures.chemical_formula }}</div>
-    <div class="status">{{ structure.status }}</div>
+    <div class="font-semibold">{{ structure.structures.chemical_formula }}</div>
+    <div class="text-sm text-gray-500 col-start-2 row-start-2">{{ structure.status }}</div>
   </RouterLink>
 </template>
 
-<style scoped>
-  .structures-item {
-    display: grid;
-    gap: 0 16px;
-    grid-template-columns: min-content auto min-content;
-    grid-template-rows: min-content min-content;
-    padding-block: 4px;
-    padding-inline: 8px;
-    margin-block: 4px;
-    border: var(--go-border-primary);
-  }
-
-  .structures-item:hover {
-    background-color: var(--go-color-overlay-hover);
-  }
-
-  .status {
-    @mixin text-ui-11;
-    color: var(--go-color-glyph-secondary);
-    grid-column: 2;
-    grid-row: 2;
-  }
-</style>
+<style scoped></style>

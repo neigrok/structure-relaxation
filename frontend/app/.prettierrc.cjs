@@ -1,1 +1,5 @@
-module.exports = require('@constructor/configs/.prettierrc.cjs');
+module.exports = {
+  printWidth: 100,
+  singleQuote: true,
+  vueIndentScriptAndStyle: true,
+};

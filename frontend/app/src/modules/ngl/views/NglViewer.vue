@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-  import { useCallbackLoadState, GoLoad } from '@constructor/ui';
   import { onBeforeMount } from 'vue';
   import BaseNglViewer from '@/components/BaseNglViewer/BaseNglViewer.vue';
   import { provideNglViewer } from '@/components/BaseNglViewer/nglViewer';
@@ -9,12 +8,11 @@
   }>();
 
   const ext = 'cif';
-  const { callback: init, loadState } = useCallbackLoadState(initCallback);
   const { initLibrary, setStructure } = provideNglViewer();
 
   onBeforeMount(() => init());
 
-  async function initCallback() {
+  async function init() {
     await Promise.all([initStructure(), initLibrary()]);
   }
 
@@ -26,9 +24,7 @@
 <template>
   <div class="ngl-viewer">
     <div class="content">
-      <GoLoad center :load-state="loadState" reload @reload="init">
-        <BaseNglViewer />
-      </GoLoad>
+      <BaseNglViewer />
     </div>
   </div>
 </template>

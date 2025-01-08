@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-  import { GoFillerBlock } from '@constructor/ui';
   import StructureFormCreate from '@/modules/structure/components/StructureFormCreate.vue';
   import StructuresList from '@/modules/structure/components/StructuresList.vue';
 </script>
@@ -14,9 +13,9 @@
     <div class="content">
       <RouterView v-slot="{ Component: Structure }">
         <Component :is="Structure" v-if="Structure" />
-        <GoFillerBlock v-else center size="lg">
+        <div v-else class="flex justify-center items-center h-full">
           <StructureFormCreate />
-        </GoFillerBlock>
+        </div>
       </RouterView>
     </div>
   </div>
@@ -27,6 +26,7 @@
     display: flex;
     flex-grow: 1;
     flex-direction: column;
+    block-size: 100vh;
   }
 
   .menu-container {
@@ -34,9 +34,10 @@
     position: relative;
     flex-shrink: 0;
     align-self: stretch;
-    border-inline-end: var(--go-border-secondary);
+    border-inline-end: 1px solid #ccc;
     inline-size: 100%;
     block-size: 350px;
+    margin-block-end: 20px;
   }
 
   .menu {
@@ -44,13 +45,14 @@
     display: flex;
     flex-direction: column;
     inset: 0;
-    background-color: var(--go-color-spot-secondary);
+    background-color: #f0f0f0;
   }
 
   .content {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    overflow-y: auto;
   }
 
   @media (min-width: 768px) {
@@ -62,7 +64,7 @@
 
     .menu-container {
       inline-size: 300px;
-      block-size: auto;
+      block-size: 100vh;
     }
   }
 </style>

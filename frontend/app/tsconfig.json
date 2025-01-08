@@ -1,16 +1,31 @@
 {
-  "extends": "@constructor/configs/tsconfig.global.json",
   "compilerOptions": {
+    "target": "esnext",
+    "module": "preserve",
+    "strict": true,
+    "resolveJsonModule": true,
+    "allowJs": false,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "jsx": "preserve",
+    "importHelpers": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": true,
+    "sourceMap": true,
+    "lib": ["esnext", "dom", "dom.iterable"],
     "baseUrl": ".",
-    "types": [
-      "vite/client",
-      "@constructor/federation/types",
-    ],
+    "types": ["vite/client"],
     "paths": {
       "@/*": ["src/*"],
       "@app/*": ["./*"]
     }
   },
-  "include": ["node_modules/@constructor/ui/@types/index.d.ts", "**/*.ts", "**/*.vue"],
+  "include": ["**/*.ts", "**/*.vue"],
   "exclude": ["node_modules"]
 }

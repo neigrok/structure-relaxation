@@ -1,4 +1,29 @@
-import { getFileTypes, recommended } from '@constructor/configs/eslintConfig';
+const getFileTypes = () => ({
+  all: ['*.js', '*.ts', '*.vue'],
+});
+
+const recommended = () => [
+  {
+    files: getFileTypes().all,
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['src/*'],
+              message: 'Please use import from the appropriate module',
+            },
+            {
+              group: ['vue/dist/vue'],
+              message: 'Please use import from vue',
+            },
+          ],
+        },
+      ],
+    },
+  },
+];
 
 export default [
   ...recommended({
@@ -12,10 +37,9 @@ export default [
         {
           patterns: [
             {
-              group: ['@constructor/ui/src/*'],
-              message: 'Please use import from @constructor/ui',
+              group: ['src/*'],
+              message: 'Please use import from the appropriate module',
             },
-            // TODO: webstorm bug https://youtrack.jetbrains.com/issue/WEB-61927/vue3-auto-imports-from-vue-dist-vue-on-paste
             {
               group: ['vue/dist/vue'],
               message: 'Please use import from vue',

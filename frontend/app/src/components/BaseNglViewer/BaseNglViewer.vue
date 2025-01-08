@@ -1,10 +1,8 @@
 <script lang="ts" setup>
-  import { GoLoader, vResize } from '@constructor/ui';
   import { onBeforeMount, onMounted, onUnmounted, ref, watch } from 'vue';
-  import BaseLoadError from '@/components/BaseLoadError.vue';
   import { injectNglViewer } from '@/components/BaseNglViewer/nglViewer';
 
-  const { stageInstance, loadState, ngl, initLibrary, setStage } = injectNglViewer();
+  const { stageInstance, ngl, initLibrary, setStage } = injectNglViewer();
   const element = ref<HTMLDivElement>();
 
   watch([ngl, element], onStageDataChange);
@@ -32,8 +30,8 @@
 
 <template>
   <div class="base-ngl-viewer">
-    <div ref="element" v-resize="onResize" class="view"></div>
-    <div v-if="loadState === 'loaded'" class="info">
+    <div ref="element" @resize="onResize" class="view"></div>
+    <div class="info">
       <div class="info-row">
         <span class="info-key">LMB+Shift</span>
         <span class="info-action">Zoom</span>
@@ -47,10 +45,6 @@
         <span class="info-action">Reset view</span>
       </div>
     </div>
-    <div v-else class="state">
-      <GoLoader v-if="loadState === 'loading'" />
-      <BaseLoadError v-else />
-    </div>
   </div>
 </template>
 
@@ -58,15 +52,6 @@
   .base-ngl-viewer {
     position: relative;
     flex-grow: 1;
-  }
-
-  .state {
-    position: absolute;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--go-color-spot-primary);
-    inset: 0;
   }
 
   .info {
@@ -80,18 +65,17 @@
   }
 
   .info-row {
-    @mixin text-ui-11;
     display: flex;
     gap: 4px;
   }
 
   .info-key {
-    color: var(--go-color-glyph-inverted-info);
+    color: #fff; /* Replace with appropriate color */
     font-weight: 500;
   }
 
   .info-action {
-    color: var(--go-color-glyph-inverted-secondary);
+    color: #ccc; /* Replace with appropriate color */
   }
 
   .view {
