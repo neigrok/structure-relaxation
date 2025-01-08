@@ -5,7 +5,7 @@ import { defineConfig, loadEnv } from 'vite';
 export default defineConfig(({ mode }) => {
   const envPrefix = 'CONSTRUCTOR_';
   const env = loadEnv(mode, '.', envPrefix);
-  const base = env.CONSTRUCTOR_APP_URL || '/';
+  const base = env.CONSTRUCTOR_APP_PREFIX || '/';
 
   return {
     envPrefix,
@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
       },
       proxy: {
         '/api': {
-          target: env.CONSTRUCTOR_API_ORIGIN,
+          target: env.CONSTRUCTOR_APP_URL,
           changeOrigin: true,
         },
       },

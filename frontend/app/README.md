@@ -5,17 +5,17 @@
 Install application
 
 ```bash
- pnpm install
+ npm install
 ```
 
 Start application
 
 ```bash
-pnpm run dev
+  npm run dev
 ```
 
 Build application
 
 ```bash
-pnpm run build
+  npm run build
 ```

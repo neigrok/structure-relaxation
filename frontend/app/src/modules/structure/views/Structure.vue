@@ -3,7 +3,6 @@
   import { useStructureRequest } from '@/api/structures';
   import type { Structure } from '@/api/types/structure';
   import NglViewer from '@/modules/ngl/views/NglViewer.vue';
-  import { mockStructure } from '@/modules/structure/helper/helper';
   import { useRouteStructureId } from '@/modules/structure/services/helpers';
   import { useLoadState, usePolling } from '@/services/services';
 
@@ -13,21 +12,33 @@
   const { loadState, setLoading, setLoaded } = useLoadState();
   const { start, abort } = usePolling(loadStructureLoop, { timeout: 5000 });
 
-  onMounted(() => {
+  onMounted(async () => {
     setLoading();
+    await loadStructureLoop(); // Start the request immediately
     start();
   });
 
-  async function loadStructureLoop() {
-    try {
-      structure.value = await request(structureId.value);
+  function getStructures(): Structure[] {
+    return JSON.parse(localStorage.getItem('structures') || '[]');
+  }
 
-      if (structure.value.status === 'FINISHED') {
-        abort();
-        setLoaded();
+  function setStructures(structures: Structure[]) {
+    localStorage.setItem('structures', JSON.stringify(structures));
+  }
+
+  async function loadStructureLoop() {
+    structure.value = await request(structureId.value);
+
+    if (structure.value.status === 'FINISHED') {
+      const structures = getStructures();
+      const index = structures.findIndex((s) => s.id === structure.value!.id);
+
+      if (index !== -1 && structures[index].status !== 'FINISHED') {
+        structures[index] = structure.value;
+        setStructures(structures);
+        window.location.reload();
       }
-    } catch {
-      structure.value = mockStructure as Structure;
+
       abort();
       setLoaded();
     }
@@ -64,21 +75,21 @@
 </template>
 
 <style scoped>
-.loader {
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-}
+  .loader {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+  }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
-  100% {
-    transform: rotate(360deg);
-  }
-}
 </style>

@@ -2,11 +2,10 @@
   import { ref } from 'vue';
   import { useCreateStructureRequest } from '@/api/structures';
   import type { StructureCreateForm, Structure } from '@/api/types/structure';
-  import { mockStructure } from '@/modules/structure/helper/helper';
 
   const initialValues = ref<StructureCreateForm>({
-    api_key: 'TANIzwMjjHwX7G8NjP0LOLPMd44KSVpG',
-    material_id: 'mt-',
+    mp_api_key: '',
+    material_id: 'mp-',
     fmax: 0.05,
     max_steps: 200,
   });
@@ -25,24 +24,20 @@
   async function onSubmit() {
     const structures = getStructures();
 
-    try {
-      await requestCreateStructure(values.value);
-      window.location.reload();
-    } catch {
-      structures.push(mockStructure as Structure);
-      setStructures(structures);
-      window.location.reload();
-    }
+    const response = await requestCreateStructure(values.value);
+    structures.push(response);
+    setStructures(structures);
+    window.location.reload();
   }
 </script>
 
 <template>
   <form @submit.prevent="onSubmit" class="space-y-4">
     <div>
-      <label for="api_key" class="block text-sm font-medium text-gray-700">API Key</label>
+      <label for="mp_api_key" class="block text-sm font-medium text-gray-700">API Key</label>
       <input
-        id="api_key"
-        v-model="values.api_key"
+        id="mp_api_key"
+        v-model="values.mp_api_key"
         required
         class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
       />
@@ -76,7 +71,7 @@
     </div>
     <button
       type="submit"
-      :disabled="!values.api_key || !values.material_id || !values.fmax || !values.max_steps"
+      :disabled="!values.mp_api_key || !values.material_id || !values.fmax || !values.max_steps"
       class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50"
     >
       Create Structure

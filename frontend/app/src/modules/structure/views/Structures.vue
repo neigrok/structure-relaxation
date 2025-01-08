@@ -1,6 +1,9 @@
 <script lang="ts" setup>
   import StructureFormCreate from '@/modules/structure/components/StructureFormCreate.vue';
   import StructuresList from '@/modules/structure/components/StructuresList.vue';
+  import { useRouteStructureId } from '@/modules/structure/services/helpers.ts';
+
+  const structureId = useRouteStructureId();
 </script>
 
 <template>
@@ -12,7 +15,7 @@
     </div>
     <div class="content">
       <RouterView v-slot="{ Component: Structure }">
-        <Component :is="Structure" v-if="Structure" />
+        <Component :is="Structure" v-if="Structure" :key="structureId" />
         <div v-else class="flex justify-center items-center h-full">
           <StructureFormCreate />
         </div>

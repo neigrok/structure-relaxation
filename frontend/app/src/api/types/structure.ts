@@ -1,5 +1,5 @@
 export type StructureCreateForm = {
-  api_key: string;
+  mp_api_key: string;
   material_id: string;
   fmax: number;
   max_steps: number;

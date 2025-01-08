@@ -13,11 +13,16 @@ export function usePolling(
 ) {
   const controller = new AbortController();
   const start = () => {
-    const interval = setInterval(() => {
-      callback({ signal: controller.signal });
+    const interval = setInterval(async () => {
+      if (controller.signal.aborted) {
+        clearInterval(interval);
+        return;
+      }
+      await callback({ signal: controller.signal });
     }, options.timeout);
     controller.signal.addEventListener('abort', () => clearInterval(interval));
   };
   const abort = () => controller.abort();
+
   return { start, abort };
 }
