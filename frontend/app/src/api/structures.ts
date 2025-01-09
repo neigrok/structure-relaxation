@@ -5,7 +5,7 @@ import type {
   ApiStructuresPostResponse,
 } from '@/api/endpoints/structures';
 
-const baseURL = import.meta.env.CONSTRUCTOR_APP_URL;
+const baseURL = '/api';
 
 export function useStructureRequest() {
   return {
@@ -19,10 +19,7 @@ export function useStructureRequest() {
 export function useCreateStructureRequest() {
   return {
     async request(body: ApiStructuresPostBody): Promise<ApiStructuresPostResponse> {
-      const response = await axios.post<ApiStructuresPostResponse>(
-        `${baseURL}/relaxations`,
-        body,
-      );
+      const response = await axios.post<ApiStructuresPostResponse>(`${baseURL}/relaxations`, body);
       return response.data;
     },
   };
