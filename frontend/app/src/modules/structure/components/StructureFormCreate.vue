@@ -4,10 +4,10 @@
   import type { StructureCreateForm, Structure } from '@/api/types/structure';
 
   const initialValues = ref<StructureCreateForm>({
-    mp_api_key: '',
+    mp_api_key: localStorage.getItem('mp_api_key') || '',
     material_id: 'mp-',
     fmax: 0.05,
-    max_steps: 200,
+    max_steps: 20,
   });
 
   const values = ref<StructureCreateForm>({ ...initialValues.value });
@@ -27,6 +27,8 @@
     const response = await requestCreateStructure(values.value);
     structures.push(response);
     setStructures(structures);
+
+    localStorage.setItem('mp_api_key', values.value.mp_api_key);
     window.location.reload();
   }
 </script>
@@ -79,4 +81,8 @@
   </form>
 </template>
 
-<style scoped></style>
+<style scoped>
+input:invalid {
+  border: 1px solid  red;
+}
+</style>

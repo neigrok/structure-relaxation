@@ -97,6 +97,24 @@ function getNglViewer() {
     }
 
     componentInstance.value = result;
+
+    // Add default ball+stick representation
+    componentInstance.value.addRepresentation('ball+stick', {
+      sphereScale: 0.7,
+      bondScale: 0.3,
+      bondColor: 'yellow',
+      aspectRatio: 1.5,
+    });
+
+    // Add unit cell
+    componentInstance.value.addRepresentation('unitcell', {
+      lineWidth: 1,
+      color: 'yellow',
+      opacity: 1,
+    });
+
+    // Center and zoom to structure
+    componentInstance.value.autoView();
   }
 
   function cleanComponent() {

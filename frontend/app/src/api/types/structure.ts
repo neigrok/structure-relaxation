@@ -9,8 +9,8 @@ export type Optimization = {
   progress: number;
   fmax: number;
   max_steps: number;
-  forces: [];
-  energies: [];
+  forces: number[];
+  energies: number[];
 };
 
 export type StructureDetails = {
