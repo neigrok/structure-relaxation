@@ -18,8 +18,10 @@
   const toast = useToast();
   const structureStore = useStructureStore();
   const { structures } = storeToRefs(structureStore);
+  const loading = ref(false);
 
   async function onSubmit() {
+    loading.value = true;
     try {
       const response = await requestCreateStructure(values.value);
       structures.value.push(response);
@@ -27,6 +29,8 @@
       localStorage.setItem('mp_api_key', values.value.mp_api_key);
     } catch (error) {
       toast.error('Failed to create structure.');
+    } finally {
+      loading.value = false;
     }
   }
 </script>
@@ -71,10 +75,13 @@
     </div>
     <button
       type="submit"
-      :disabled="!values.mp_api_key || !values.material_id || !values.fmax || !values.max_steps"
+      :disabled="
+        loading || !values.mp_api_key || !values.material_id || !values.fmax || !values.max_steps
+      "
       class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50"
     >
-      Create Structure
+      <span v-if="loading">Creating...</span>
+      <span v-else>Create Structure</span>
     </button>
   </form>
 </template>

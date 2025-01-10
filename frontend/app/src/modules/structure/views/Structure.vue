@@ -39,14 +39,12 @@
   async function loadStructureLoop() {
     try {
       structure.value = await request(structureId.value);
+      const index = structures.value.findIndex((s) => s.id === structure.value!.id);
+      if (index !== -1) {
+        structures.value[index] = structure.value;
+      }
 
       if (structure.value.status === 'FINISHED') {
-        const index = structures.value.findIndex((s) => s.id === structure.value!.id);
-
-        if (index !== -1 && structures.value[index].status !== 'FINISHED') {
-          structures.value[index] = structure.value;
-        }
-
         abort();
       }
     } catch (error) {
