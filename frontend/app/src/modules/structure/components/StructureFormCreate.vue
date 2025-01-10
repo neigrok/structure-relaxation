@@ -1,7 +1,10 @@
 <script lang="ts" setup>
   import { ref } from 'vue';
   import { useCreateStructureRequest } from '@/api/structures';
-  import type { StructureCreateForm, Structure } from '@/api/types/structure';
+  import type { StructureCreateForm } from '@/api/types/structure';
+  import { useStructureStore } from '@/stores/structureStore.ts';
+  import { storeToRefs } from 'pinia';
+  import { useToast } from 'vue-toast-notification';
 
   const initialValues = ref<StructureCreateForm>({
     mp_api_key: localStorage.getItem('mp_api_key') || '',
@@ -12,24 +15,19 @@
 
   const values = ref<StructureCreateForm>({ ...initialValues.value });
   const { request: requestCreateStructure } = useCreateStructureRequest();
-
-  function getStructures(): Structure[] {
-    return JSON.parse(localStorage.getItem('structures') || '[]');
-  }
-
-  function setStructures(structures: Structure[]) {
-    localStorage.setItem('structures', JSON.stringify(structures));
-  }
+  const toast = useToast();
+  const structureStore = useStructureStore();
+  const { structures } = storeToRefs(structureStore);
 
   async function onSubmit() {
-    const structures = getStructures();
+    try {
+      const response = await requestCreateStructure(values.value);
+      structures.value.push(response);
 
-    const response = await requestCreateStructure(values.value);
-    structures.push(response);
-    setStructures(structures);
-
-    localStorage.setItem('mp_api_key', values.value.mp_api_key);
-    window.location.reload();
+      localStorage.setItem('mp_api_key', values.value.mp_api_key);
+    } catch (error) {
+      toast.error('Failed to create structure.');
+    }
   }
 </script>
 
@@ -82,7 +80,7 @@
 </template>
 
 <style scoped>
-input:invalid {
-  border: 1px solid  red;
-}
+  input:invalid {
+    border: 1px solid red;
+  }
 </style>

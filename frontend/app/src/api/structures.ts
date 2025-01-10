@@ -5,6 +5,8 @@ import type {
   ApiStructuresPostResponse,
 } from '@/api/endpoints/structures';
 
+// local usage
+// const baseURL = 'http://localhost:3333';
 const baseURL = '/api';
 
 export function useStructureRequest() {

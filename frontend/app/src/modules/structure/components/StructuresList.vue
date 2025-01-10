@@ -1,11 +1,12 @@
 <script lang="ts" setup>
-  import { ref } from 'vue';
   import { useRouter } from 'vue-router';
-  import type { Structure } from '@/api/types/structure';
   import StructuresListItem from '@/modules/structure/components/StructuresListItem.vue';
+  import { useStructureStore } from '@/stores/structureStore.ts';
+  import { storeToRefs } from 'pinia';
 
   const router = useRouter();
-  const structures = ref<Structure[]>(JSON.parse(localStorage.getItem('structures') || '[]'));
+  const structureStore = useStructureStore();
+  const { structures } = storeToRefs(structureStore);
 
   function navigateToHome() {
     router.push({ name: 'structures' });

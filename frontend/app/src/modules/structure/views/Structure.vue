@@ -7,11 +7,17 @@
   import { usePolling } from '@/services/services';
   import StructureChart from '@/modules/structure/components/StructureChart.vue';
   import { useRouter } from 'vue-router';
+  import { useStructureStore } from '@/stores/structureStore.ts';
+  import { storeToRefs } from 'pinia';
+  import { useToast } from 'vue-toast-notification';
 
   const structure = ref<Structure>();
   const router = useRouter();
   const structureId = useRouteStructureId();
   const { request } = useStructureRequest();
+  const toast = useToast();
+  const structureStore = useStructureStore();
+  const { structures } = storeToRefs(structureStore);
   const { start, abort } = usePolling(loadStructureLoop, { timeout: 5000 });
   const progressBarWidth = computed(() => {
     if (!structure.value) {
@@ -30,42 +36,29 @@
     start();
   });
 
-  function getStructures(): Structure[] {
-    return JSON.parse(localStorage.getItem('structures') || '[]');
-  }
-
-  function setStructures(structures: Structure[]) {
-    localStorage.setItem('structures', JSON.stringify(structures));
-  }
-
   async function loadStructureLoop() {
     try {
       structure.value = await request(structureId.value);
 
       if (structure.value.status === 'FINISHED') {
-        const structures = getStructures();
-        const index = structures.findIndex((s) => s.id === structure.value!.id);
+        const index = structures.value.findIndex((s) => s.id === structure.value!.id);
 
-        if (index !== -1 && structures[index].status !== 'FINISHED') {
-          structures[index] = structure.value;
-          setStructures(structures);
+        if (index !== -1 && structures.value[index].status !== 'FINISHED') {
+          structures.value[index] = structure.value;
         }
 
         abort();
       }
     } catch (error) {
-      alert('Failed to fetch the job, it will be removed from the list');
-      const structures = getStructures();
-      const index = structures.findIndex((s) => s.id === structureId.value);
+      toast.error('Failed to fetch the structure. Structure is removed from the list.');
+      const index = structures.value.findIndex((s) => s.id === structureId.value);
 
       if (index !== -1) {
-        structures.splice(index, 1);
-        setStructures(structures);
+        structures.value.splice(index, 1);
       }
 
       abort();
       await router.push({ name: 'structures' });
-      window.location.reload();
     }
   }
 </script>

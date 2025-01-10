@@ -2,6 +2,8 @@
 
 ## Development
 
+For local usage need to change baseURL in app/src/api/structures.ts to http://localhost:3333/   
+
 Install application
 
 ```bash
