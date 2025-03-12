@@ -1,5 +1,6 @@
 import io
 import time
+import tempfile
 from multiprocessing import Process, Queue
 
 from ase import Atoms
@@ -47,6 +48,8 @@ class RelaxationWorker(Process):
         job_id = job["id"]
         fmax = job["fmax"]
         max_steps = job["max_steps"]
+        with tempfile.NamedTemporaryFile(prefix=job_id, suffix="traj", delete=False) as trajectory_file:
+            job["trajectory_file"] = trajectory_file.name
 
         logger.info(f"Processing job with fmax {fmax} and max_steps {max_steps} (job {job_id})")
 
@@ -61,6 +64,7 @@ class RelaxationWorker(Process):
         optimizer = PreconLBFGS(
             atoms,
             logfile=log_buffer,
+            trajectory=job["trajectory_file"],
             precon='Exp',
             use_armijo=False
         )
@@ -86,6 +90,8 @@ class RelaxationWorker(Process):
             current_step = optimizer.get_number_of_steps() + 1
             progress = current_step / max_steps
 
+            job["step_atoms"][current_step] = atoms.copy().todict()
+
             job["progress"] = progress
 
             logger.info(f"Step {current_step}/{max_steps} with energy {energy} and force {force} (job {job_id})")
@@ -97,6 +103,13 @@ class RelaxationWorker(Process):
 
         logger.info(f"Optimization finished (job {job_id})")
 
+        # energies should be:
+        # (opt_log[opt_log.columns[1]] - opt_log[opt_log.columns[1]].iloc[-1])/len(ase_atoms)
+        last_energy = job["energies"][-1]
+        atoms_slab_len = len(job["atoms_slab"]["numbers"])
+        for idx in range(len(job["energies"])):
+            e = job["energies"][idx]
+            job["energies"][idx] = (e - last_energy) / atoms_slab_len
         job["status"] = JobStatus.FINISHED
         job["progress"] = 1
 

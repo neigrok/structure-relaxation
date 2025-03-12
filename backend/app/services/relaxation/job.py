@@ -21,6 +21,7 @@ class Job(TypedDict):
     chemical_formula: str
     atoms: dict[str, Any]
     atoms_slab: dict[str, Any]
+    step_atoms: dict[int, dict[str, Any]]
 
     # Fields that are updated during the job
     status: str
@@ -28,3 +29,4 @@ class Job(TypedDict):
 
     energies: list[float]
     forces: list[float]
+    trajectory_file: str

@@ -1,5 +1,5 @@
 export type StructureCreateForm = {
-  mp_api_key: string;
+  mp_api_key?: string;
   material_id: string;
   fmax: number;
   max_steps: number;
@@ -29,4 +29,5 @@ export type Structure = {
   status: 'PENDING' | 'RUNNING' | 'FINISHED' | 'FAILED';
   optimization: Optimization;
   structures: Structures;
+  steps: StructureDetails[];
 };

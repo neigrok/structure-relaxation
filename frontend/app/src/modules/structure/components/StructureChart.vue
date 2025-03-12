@@ -65,7 +65,7 @@
           showgrid: false,  // Remove vertical grid lines
         },
         yaxis2: {
-          title: 'Energy (eV)',
+          title: 'Energy (eV/Å)',
           type: 'log',
           overlaying: 'y',
           side: 'right',
@@ -90,5 +90,8 @@
 </template>
 
 <style scoped>
-
+.display-plotly {
+  width: 100%;
+  height: 400px;
+}
 </style>

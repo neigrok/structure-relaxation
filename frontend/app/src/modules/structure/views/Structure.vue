@@ -6,6 +6,7 @@
   import { useRouteStructureId } from '@/modules/structure/services/helpers';
   import { usePolling } from '@/services/services';
   import StructureChart from '@/modules/structure/components/StructureChart.vue';
+  import StepsGallery from '@/modules/structure/components/StepsGallery.vue';
   import { useRouter } from 'vue-router';
   import { useStructureStore } from '@/stores/structureStore.ts';
   import { storeToRefs } from 'pinia';
@@ -94,6 +95,14 @@
           :optimization-data="structure.optimization"
         />
       </div>
+    </div>
+    
+    <!-- Steps Gallery Section -->
+    <div class="my-8 px-8 w-full" v-if="structure.steps && structure.steps.length > 0">
+      <StepsGallery 
+        :steps="structure.steps" 
+        :key="`steps-gallery-${structure.id}-${structure.optimization.progress}`" 
+      />
     </div>
   </template>
   <div class="flex justify-center items-center h-full" v-else>

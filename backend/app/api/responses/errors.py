@@ -39,3 +39,8 @@ class ApiKeyOutdatedError(ApiError):
 class JobNotFoundError(ApiError):
     status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
     detail = "Job not found"
+
+
+class TrajectoryNotFoundError(ApiError):
+    status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+    detail = "Trajectory not found"
