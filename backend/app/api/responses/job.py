@@ -48,6 +48,25 @@ class StructuresResponse(BaseModel):
             )
         )
 
+
+def serialize_steps(job: Job) -> list[StructureResponse]:
+    structure_format = "cif"
+
+    steps = []
+    for step, atoms in job["step_atoms"].items():
+        atoms = Atoms.fromdict(atoms)
+        structure = io.BytesIO()
+        write(structure, atoms, format=structure_format)
+        structure_str = structure.getvalue().decode('utf-8')
+
+        steps.append(StructureResponse(
+            format=structure_format,
+            structure=structure_str,
+        ))
+
+    return steps
+
+
 class JobOptimizationResponse(BaseModel):
     progress: float = Field(0.0, description="Progress in percents")
     fmax: float = Field(..., description="Maximum force (eV/Å)")
@@ -70,15 +89,18 @@ class JobResponse(BaseModel):
     status: str = Field(..., description="Status of the job")
     optimization: JobOptimizationResponse = Field(..., description="Optimization results")
     structures: StructuresResponse = Field(..., description="Structures")
+    steps: list[StructureResponse] = Field(..., description="Optimization steps")
 
     @classmethod
     def from_job(cls, job: Job) -> Self:
         optimization = JobOptimizationResponse.from_job(job)
         structures = StructuresResponse.from_job(job)
+        steps = serialize_steps(job)
 
         return cls(
             id=job["id"],
             status=job["status"],
             optimization=optimization,
             structures=structures,
+            steps=steps,
         )

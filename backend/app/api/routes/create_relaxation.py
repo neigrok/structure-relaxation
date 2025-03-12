@@ -7,19 +7,23 @@ from api.responses.errors import ApiKeyOutdatedError, ApiKeyMalformedError, Mate
 from api.responses.job import JobResponse
 from services.relaxation.service import ApiKeyOutdated, ApiKeyMalformed, MaterialMalformedName, MaterialNotFound
 
+from api.dependencies.get_container import ContainerDependency
+
 router = APIRouter()
 
+
 class RelaxationRequest(BaseModel):
-    mp_api_key: str = Field(..., description="Materials Project API key")
     material_id: str = Field(..., description="Materials Project material ID")
     fmax: float = Field(0.05, description="Maximum force in eV/Å")
     max_steps: int = Field(30, description="Maximum number of steps")
+    mp_api_key: str | None = Field(default=None, description="Materials Project API key")
 
 
 @router.post("/relaxations", response_model=JobResponse)
 def create_relaxation(
     request: RelaxationRequest,
     service: RelaxationServiceDependency,
+    container: ContainerDependency,
 ) -> JobResponse:
     """The relaxation would be done in the background, poll for the results using job_id"""
     try:
@@ -27,7 +31,7 @@ def create_relaxation(
             material_id=request.material_id,
             fmax=request.fmax,
             max_steps=request.max_steps,
-            mpr_api_key=request.mp_api_key,
+            mpr_api_key=request.mp_api_key or container.settings.MPR_API_KEY,
         )
 
         return JobResponse.from_job(job)

@@ -16,10 +16,10 @@ from utils.calculator_factory import MACECalculatorFactory
 class AppContainer:
     """All dependencies should be initialized here"""
     def __init__(self) -> None:
-        settings = Settings()
+        self.settings = Settings()
 
         calculator_factory = MACECalculatorFactory(
-            model=settings.MODEL,
+            model=self.settings.MODEL,
         )
 
         job_repository = InMemoryRelaxationJobRepository()
@@ -27,7 +27,7 @@ class AppContainer:
         self.relaxation_service = RelaxationService(
             repository=job_repository,
             calculator_factory=calculator_factory,
-            num_workers=settings.NUM_WORKERS,
+            num_workers=self.settings.NUM_WORKERS,
         )
 
     def shutdown(self) -> None:

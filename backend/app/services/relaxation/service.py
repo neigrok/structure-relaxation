@@ -1,10 +1,11 @@
 import queue
 import threading
 import uuid
+from io import StringIO
 from multiprocessing import Queue
 from typing import cast
 
-from ase import Atoms
+from ase import Atoms, build, io
 from mp_api.client import MPRester, MPRestError  # type: ignore[import-untyped]
 from pymatgen.core.structure import Structure
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -29,6 +30,10 @@ class ApiKeyMalformed(Exception):
 
 
 class ApiKeyOutdated(Exception):
+    pass
+
+
+class TrajectoryIsEmpty(Exception):
     pass
 
 
@@ -76,10 +81,12 @@ class RelaxationService:
             "chemical_formula": ase_atoms.get_chemical_formula(),
             "atoms": ase_atoms.todict(),
             "atoms_slab": self.make_slab(ase_atoms).todict(),
+            "step_atoms": {},
             "status": JobStatus.PENDING,
             "progress": 0.0,
             "energies": [],
             "forces": [],
+            "trajectory_file": "",
         }
 
         self.repository.create(job)
@@ -154,14 +161,20 @@ class RelaxationService:
 
     @staticmethod
     def make_slab(atoms: Atoms) -> Atoms:
-        while len(atoms) < 30:
-            atoms *= (1, 1, 2)
+        while len(atoms) < 15:
+            atoms *= (2, 2, 2)
 
-        cell = atoms.get_cell()
-        cell[2, 2] += 20.0
-        atoms.set_cell(cell)
-
-        atoms.wrap()
-        atoms.rattle(0.05)
+        build.add_vacuum(atoms, 3)
 
         return atoms
+
+    @classmethod
+    def get_trajectory_xyz(cls, job: Job) -> StringIO:
+        if not job["trajectory_file"]:
+            raise TrajectoryIsEmpty("Trajectory is empty")
+
+        traj = io.read(job["trajectory_file"], ":")
+        buffer = StringIO()
+        io.write(buffer, traj, format="xyz")
+
+        return buffer

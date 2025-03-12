@@ -3,6 +3,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    environment:
+      - MPR_API_KEY=my-key
 
   frontend:
     build:
