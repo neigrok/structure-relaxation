@@ -13,6 +13,7 @@ const playbackSpeed = ref(500); // milliseconds between steps
 let playbackInterval: number | null = null;
 
 const totalSteps = computed(() => props.steps.length);
+const currentStructure = computed(() => props.steps[currentStep.value]?.structure || '');
 
 // Watch for changes in steps array and reset current step
 watch(() => props.steps, (newSteps, oldSteps) => {
@@ -166,10 +167,10 @@ onBeforeUnmount(() => {
     </div>
     
     <div class="step-viewer">
-      <!-- Use a more stable key strategy that doesn't cause complete remounting -->
+      <!-- Use a persistent NglViewer with changing file-content prop -->
       <NglViewer 
-        :file-content="steps[currentStep].structure" 
-        :key="`step-viewer-${currentStep % 2}`"
+        :file-content="currentStructure" 
+        key="persistent-step-viewer"
       />
     </div>
     
