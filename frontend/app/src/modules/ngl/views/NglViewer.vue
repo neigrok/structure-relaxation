@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-  import { onBeforeMount } from 'vue';
+  import { onBeforeMount, onUnmounted, watch } from 'vue';
   import BaseNglViewer from '@/components/BaseNglViewer/BaseNglViewer.vue';
   import { provideNglViewer } from '@/components/BaseNglViewer/nglViewer';
 
@@ -8,16 +8,33 @@
   }>();
 
   const ext = 'cif';
-  const { initLibrary, setStructure } = provideNglViewer();
+  const { initLibrary, setStructure, dispose } = provideNglViewer();
 
   onBeforeMount(() => init());
+  onUnmounted(() => {
+    // Ensure proper cleanup when component is unmounted
+    dispose();
+  });
+
+  // Watch for changes in fileContent to update the structure
+  watch(() => props.fileContent, (newContent) => {
+    if (newContent) {
+      setStructure(newContent, ext);
+    }
+  });
 
   async function init() {
-    await Promise.all([initStructure(), initLibrary()]);
+    try {
+      await Promise.all([initStructure(), initLibrary()]);
+    } catch (error) {
+      console.error('Failed to initialize NGL viewer:', error);
+    }
   }
 
   async function initStructure() {
-    setStructure(props.fileContent, ext);
+    if (props.fileContent) {
+      setStructure(props.fileContent, ext);
+    }
   }
 </script>
 

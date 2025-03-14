@@ -9,15 +9,6 @@
 
   const structureId = useRouteStructureId();
   const isCurrentActive = computed(() => structureId.value === props.structure.id);
-
-  const downloadTrajectory = () => {
-    const link = document.createElement('a');
-    link.href = `/api/relaxations/${props.structure.id}/trajectory`;
-    link.download = `trajectory_${props.structure.id}.xyz`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
 </script>
 
 <template>
@@ -32,16 +23,6 @@
       <div class="font-semibold">{{ structure.structures.chemical_formula }}</div>
       <div class="text-sm text-gray-500">{{ structure.status }}</div>
     </RouterLink>
-
-    <div v-if="structure.status === 'FINISHED'" class="flex flex-col gap-2">
-      <button
-        @click="downloadTrajectory"
-        class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
-        Download XYZ
-      </button>
-    </div>
-
   </div>
 </template>
 
