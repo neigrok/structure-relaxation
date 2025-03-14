@@ -2,13 +2,28 @@
   import { onBeforeMount, onMounted, onUnmounted, ref, watch } from 'vue';
   import { injectNglViewer } from '@/components/BaseNglViewer/nglViewer';
 
-  const { stageInstance, ngl, initLibrary, setStage } = injectNglViewer();
+  const { stageInstance, ngl, initLibrary, setStage, dispose, isErrorState } = injectNglViewer();
   const element = ref<HTMLDivElement>();
 
   watch([ngl, element], onStageDataChange);
+  // Watch for error state changes to attempt recovery
+  watch(isErrorState, (hasError) => {
+    if (hasError && element.value) {
+      // If we're in an error state, try to recreate the stage
+      console.log('Attempting to recover from WebGL error state');
+      setTimeout(() => {
+        if (element.value) setStage(element.value);
+      }, 300);
+    }
+  });
+  
   onBeforeMount(initLibrary);
   onMounted(() => document.addEventListener('keydown', onKeyDown));
-  onUnmounted(() => document.removeEventListener('keydown', onKeyDown));
+  onUnmounted(() => {
+    document.removeEventListener('keydown', onKeyDown);
+    // Properly dispose of the viewer when component is unmounted
+    dispose();
+  });
 
   async function onStageDataChange() {
     if (ngl.value && element.value) {
@@ -31,6 +46,9 @@
 <template>
   <div class="base-ngl-viewer">
     <div ref="element" @resize="onResize" class="view"></div>
+    <div v-if="isErrorState" class="error-overlay">
+      <div class="error-message">WebGL rendering error. Attempting to recover...</div>
+    </div>
     <div class="info">
       <div class="info-row">
         <span class="info-key">LMB+Shift</span>
@@ -81,5 +99,23 @@
   .view {
     position: absolute;
     inset: 0;
+  }
+  
+  .error-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+  }
+  
+  .error-message {
+    color: #fff;
+    background-color: rgba(255, 0, 0, 0.7);
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: 500;
   }
 </style>

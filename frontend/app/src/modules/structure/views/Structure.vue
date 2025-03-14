@@ -60,6 +60,17 @@
       await router.push({ name: 'structures' });
     }
   }
+
+  const downloadTrajectory = () => {
+    if (!structure.value) return;
+    
+    const link = document.createElement('a');
+    link.href = `/api/relaxations/${structure.value.id}/trajectory`;
+    link.download = `trajectory_${structure.value.id}.xyz`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 </script>
 
 <template>
@@ -72,6 +83,13 @@
       <div class="text-lg mb-4">
         Status: <strong> {{ structure.status }} </strong>
       </div>
+      <button
+        v-if="structure.status === 'FINISHED'"
+        @click="downloadTrajectory"
+        class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+      >
+        Download XYZ
+      </button>
     </div>
 
     <div class="mt-8 w-full">
